@@ -104,7 +104,8 @@ extern "C" {
 #define  RT_SENSOR_CTRL_SET_MODE       (4)  /* Set sensor's work mode. ex. RT_SENSOR_MODE_POLLING,RT_SENSOR_MODE_INT */
 #define  RT_SENSOR_CTRL_SET_POWER      (5)  /* Set power mode. args type of sensor power mode. ex. RT_SENSOR_POWER_DOWN,RT_SENSOR_POWER_NORMAL */
 #define  RT_SENSOR_CTRL_SELF_TEST      (6)  /* Take a self test */
-
+#define  RT_SENSOR_CTRL_SET_DLPF       (7)  /* Set DLPF */
+  
 struct rt_sensor_info
 {
     rt_uint8_t     type;                    /* The sensor type */

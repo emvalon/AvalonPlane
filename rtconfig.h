@@ -80,7 +80,11 @@
 #define RT_USING_SERIAL
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 64
+#define RT_USING_I2C
+#define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
+#define RT_USING_SENSOR
+#define RT_USING_SENSOR_CMD
 
 /* Using WiFi */
 
@@ -113,6 +117,25 @@
 
 /* Utilities */
 
+#define RT_USING_ULOG
+#define ULOG_OUTPUT_LVL_D
+#define ULOG_OUTPUT_LVL 7
+#define ULOG_ASSERT_ENABLE
+#define ULOG_LINE_BUF_SIZE 128
+#define ULOG_USING_ASYNC_OUTPUT
+#define ULOG_ASYNC_OUTPUT_BUF_SIZE 2048
+#define ULOG_ASYNC_OUTPUT_BY_THREAD
+#define ULOG_ASYNC_OUTPUT_THREAD_STACK 1024
+#define ULOG_ASYNC_OUTPUT_THREAD_PRIORITY 30
+
+/* log format */
+
+#define ULOG_USING_COLOR
+#define ULOG_OUTPUT_TIME
+#define ULOG_OUTPUT_LEVEL
+#define ULOG_OUTPUT_TAG
+#define ULOG_BACKEND_USING_CONSOLE
+#define ULOG_USING_FILTER
 
 /* RT-Thread online packages */
 
@@ -147,6 +170,16 @@
 
 /* peripheral libraries and drivers */
 
+#define PKG_USING_SENSORS_DRIVERS
+#define PKG_USING_BMI160_BMX160
+#define BMI160_USING_ACCE
+#define BMI160_USING_GYRO
+#define BMX160_USING_MAG
+#define PKG_USING_BMI160_BMX160_LATEST_VERSION
+#define PKG_USING_MPU6XXX
+#define PKG_USING_MPU6XXX_LATEST_VERSION
+#define PKG_USING_MPU6XXX_ACCE
+#define PKG_USING_MPU6XXX_GYRO
 
 /* miscellaneous packages */
 
@@ -164,9 +197,15 @@
 
 /* Onboard Peripheral Drivers */
 
+#define BSP_USING_LED
+
 /* On-chip Peripheral Drivers */
 
 #define BSP_USING_GPIO
+#define BSP_USING_I2C1
+#define BSP_USING_I2C_BITOPS
+#define BSP_I2C1_SDA_PIN 25
+#define BSP_I2C1_SCL_PIN 24
 #define BSP_USING_UART
 #define BSP_USING_UART2
 

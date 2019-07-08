@@ -12,6 +12,12 @@ board.c
 CubeMX_Config/Src/stm32f4xx_hal_msp.c
 ''')
 
+
+if GetDepend(['BSP_USING_LED']):
+    src += ['drv_led.c']
+	
+
+
 path =  [cwd]
 path += [cwd + '/CubeMX_Config/Inc']
 
