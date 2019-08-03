@@ -10,7 +10,7 @@ struct mpu6050_data{
     struct sensor_3_axis    dataGyro;
 };
 
-typedef struct mpu6050_data* mpu6050_data_t;
+typedef struct mpu6050_data mpu6050_data_t;
 
 
 

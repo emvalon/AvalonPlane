@@ -1,32 +1,36 @@
 /*
- * Copyright (c) 2006-2018, valon shen(valonshen@foxmail.com)
- *
- * Change Logs:
-*/
+ * *******************************************
+ * Copyright (c) 2019 , valon Shen 
+ * E-mail: valonshen@foxmail.com
+ * All right reserved
+ * *******************************************
+ */
 #include <rtthread.h>
 #include <board.h>
 #include <rtdevice.h>
 #include <string.h>
 #include "sensor.h"
 #include "sensor_thread.h"
+#include "communicate.h"
 #include "ulog.h"
+#include "IMU.h"
 
-#define SENSOR_MAIL_SIZE    200u
+
+#define SENSOR_MQ_SIZE      60u
 #define MPU_INT_PIN         2u
 #define MPU_READY_FLAG      1ul
 
-#define DATA_TYPE_SENSOR    1
+#define DATA_TYPE_MPU6050    1
 
 
-static rt_mailbox_t sensorMailbox;
+static rt_mq_t      sensorMQ;
 static rt_event_t   sensorEvent;
 
-
-int create_communicate_queue(void)
+static int create_sensor_queue(void)
 {
     //create sensor mailbox
-    sensorMailbox = rt_mb_create("sensorM",SENSOR_MAIL_SIZE,RT_IPC_FLAG_FIFO);
-    if(sensorMailbox == RT_NULL){
+    sensorMQ = rt_mq_create("sensorMQ",sizeof(mpu6050_data_t),SENSOR_MQ_SIZE,RT_IPC_FLAG_FIFO);      
+    if(sensorMQ == RT_NULL){
         rt_kprintf("sensor mb create fault\r\n");
         while(1);
     }
@@ -38,7 +42,7 @@ int create_communicate_queue(void)
     }
     return 0;
 }
-INIT_APP_EXPORT(create_communicate_queue);
+INIT_APP_EXPORT(create_sensor_queue);
 
 
 
@@ -78,7 +82,7 @@ void read_sensor_enter(void *para)
     rt_device_set_rx_indicate(acc_mpu6050,mpu6050_rx_callBack);
     //设置低通滤波
     rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_DLPF , (void*)4);
-    rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_ODR , (void*)300);
+    rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_ODR , (void*)200);
     
   
     rt_device_open(acc_mpu6050, RT_DEVICE_FLAG_INT_RX );
@@ -92,27 +96,23 @@ void read_sensor_enter(void *para)
         }
         else{
             if(flag & MPU_READY_FLAG){ 
-                pData = (mpu6050_data_t)rt_malloc(sizeof(struct mpu6050_data));
-                if(pData == RT_NULL){
-                    LOG_W("read thread malloc fault!");
-                    continue;
-                }
-                pData->type         = DATA_TYPE_SENSOR;
+                
+                pData.type         = DATA_TYPE_MPU6050;
                 //读取加速度计数据
                 rt_device_read(acc_mpu6050,0,(void*)&dataTemp,sizeof(dataTemp));
-                pData->dataAccel.x  = dataTemp.data.acce.x;
-                pData->dataAccel.y  = dataTemp.data.acce.y;
-                pData->dataAccel.z  = dataTemp.data.acce.z;
+                pData.dataAccel.x  = dataTemp.data.acce.x;
+                pData.dataAccel.y  = dataTemp.data.acce.y;
+                pData.dataAccel.z  = dataTemp.data.acce.z;
                 rt_memset(&dataTemp,0,sizeof(dataTemp));
                 //读取陀螺仪数据
                 rt_device_read(gyro_mpu6050,0,(void*)&dataTemp,sizeof(dataTemp));
-                pData->dataGyro.x  = dataTemp.data.gyro.x;
-                pData->dataGyro.y  = dataTemp.data.gyro.y;
-                pData->dataGyro.z  = dataTemp.data.gyro.z;
-                //send data mailbox
-                res = rt_mb_send(sensorMailbox,(rt_ubase_t)pData);
+                pData.dataGyro.x  = dataTemp.data.gyro.x;
+                pData.dataGyro.y  = dataTemp.data.gyro.y;
+                pData.dataGyro.z  = dataTemp.data.gyro.z;
+                //send data mailQ
+                res = rt_mq_send(sensorMQ,&pData,sizeof(pData));
                 if(res != RT_EOK){
-                    LOG_W("sensor send fault:%d  entry:%d\r\n",res,sensorMailbox->entry );  
+                    LOG_W("sensor send fault:%d\r\n",res );  
                     rt_thread_delay(10);
                 }
             }
@@ -128,26 +128,46 @@ void read_sensor_enter(void *para)
 void process_sensor_enter(void *para)
 {
     rt_err_t    res; 
-    mpu6050_data_t  pData;
-    uint32_t tick,preTick,cnt=0;
+    mpu6050_data_t  data;
+    Communicate_Data_t  commData;
+    uint32_t tick,preTick;
+    uint32_t cnt=0;
+    
     preTick = rt_tick_get();
     while(1){ 
-        res = rt_mb_recv(sensorMailbox,(rt_ubase_t*)&pData,RT_WAITING_FOREVER);
+        res = rt_mq_recv(sensorMQ,&data,sizeof(data),RT_WAITING_FOREVER);
         if(res == RT_EOK){            
+            switch ( data.type )
+            {
+            case DATA_TYPE_MPU6050:
+                cnt++;
+                IMU_Updata(data.dataGyro.x*0.017453/1000.0,data.dataGyro.y*0.017453/1000.0,data.dataGyro.z*0.017453/1000.0,
+                            data.dataAccel.x,data.dataAccel.y,data.dataAccel.z,&commData.Q_angle);
+                if(cnt == 20){ 
+//                  LOG_D("x:%d y%d z%d",data.dataAccel.x,data.dataAccel.y,data.dataAccel.z);
+                    if(RT_EOK != rt_mq_send(communicateQ,&commData,sizeof(commData)) ){
+                        LOG_W("send to commu fault");
+                    }
+                    cnt = 0;
+                }
+//                tick = rt_tick_get();
+//                if( tick - preTick >=1000 ){
+//                    LOG_D("read cnt:%d\r\n",cnt);
+//                    preTick = tick;
+//                    cnt=0;
+//                }
+                break;
             
-            cnt++;
-            if(cnt == 1){
-                LOG_I("acc x:%d\ty:%d\tz:%d",pData->dataAccel.x,pData->dataAccel.y,pData->dataAccel.z);
-                LOG_I("gyr x:%d\ty:%d\tz:%d",pData->dataGyro.x,pData->dataGyro.y,pData->dataGyro.z);
+            default:
+                break;
+            
+            
             }
-            rt_free(pData);
         }
-        tick = rt_tick_get();
-        if( tick - preTick >=1000 ){
-            LOG_D("read cnt:%d\r\n",cnt);
-            preTick = tick;
-            cnt=0;
+        else{
+            LOG_E("process recv MQ error:%d",res);
         }
+        
     }
 }
 

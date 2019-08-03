@@ -2372,6 +2372,12 @@
     <group>
         <name>Applications</name>
         <file>
+            <name>$PROJ_DIR$\applications\communicate.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\applications\IMU.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\applications\main.c</name>
         </file>
         <file>
@@ -2619,6 +2625,15 @@
         </file>
         <file>
             <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c</name>
+        </file>
+    </group>
+    <group>
+        <name>Utilities</name>
+        <file>
+            <name>$PROJ_DIR$\rt-thread\components\utilities\ulog\backend\console_be.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\rt-thread\components\utilities\ulog\ulog.c</name>
         </file>
     </group>
 </project>
