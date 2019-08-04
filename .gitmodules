@@ -1,0 +1,3 @@
+[submodule "Submodules/ECGP"]
+	path = Submodules/ECGP
+	url = git@github.com:emvalon/ECGP.git
