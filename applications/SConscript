@@ -3,10 +3,9 @@ from building import *
 
 cwd     = GetCurrentDir()
 CPPPATH = [cwd, str(Dir('#'))]
-src     = Split("""
-main.c
-sensor_thread.c
-""")
+
+
+src = Glob('*.c')
 
 group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
 

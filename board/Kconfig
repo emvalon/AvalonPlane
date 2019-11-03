@@ -26,11 +26,29 @@ menu "On-chip Peripheral Drivers"
         select RT_USING_PIN
         default y
 
+	menuconfig BSP_USING_TIM	
+		bool "Enable hardware timer"
+		default y
+		select RT_USING_HWTIMER
+		if BSP_USING_TIM
+			config BSP_USING_TIM1
+				bool "Enable timer 1"
+				default n
+			config BSP_USING_TIM2
+				bool "Enable timer 2"
+				default n
+			config BSP_USING_TIM3
+				bool "Enable timer 3"
+				default n
+			config BSP_USING_TIM4
+				bool "Enable timer 4"
+				default n
+		endif
+		
 	menuconfig BSP_USING_I2C1
 		bool "Enable I2C1"
 		default n
-		select RT_USING_I2C		
-		
+		select RT_USING_I2C	
 		if BSP_USING_I2C1
 			config BSP_USING_I2C_BITOPS
 			bool "Use GPIO to simulate I2C"

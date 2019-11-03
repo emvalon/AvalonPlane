@@ -80,6 +80,7 @@
 #define RT_USING_SERIAL
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 64
+#define RT_USING_HWTIMER
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
@@ -202,6 +203,8 @@
 /* On-chip Peripheral Drivers */
 
 #define BSP_USING_GPIO
+#define BSP_USING_TIM
+#define BSP_USING_TIM2
 #define BSP_USING_I2C1
 #define BSP_USING_I2C_BITOPS
 #define BSP_I2C1_SDA_PIN 25

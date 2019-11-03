@@ -34,7 +34,7 @@ int main(void)
     rt_thread_t thread;
     
     /* user app entry */
-    ulog_global_filter_lvl_set(LOG_LVL_INFO);
+   // ulog_global_filter_lvl_set(LOG_LVL_DBG);
     //sensor read thread
     thread    = rt_thread_create(   
                             "readSen",          read_sensor_enter,  

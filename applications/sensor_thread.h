@@ -3,14 +3,21 @@
 
 #include "sensor.h"
 
-struct mpu6050_data{
-    uint8_t     type;
-    uint16_t    time;
-    struct sensor_3_axis    dataAccel;
-    struct sensor_3_axis    dataGyro;
+struct sensor_readData{
+    uint8_t         type;
+    rt_hwtimerval_t time;
+    union data
+    {
+        struct mpu6050
+        {
+            struct sensor_3_axis    dataAccel;
+            struct sensor_3_axis    dataGyro;
+        };
+        
+    };   
 };
 
-typedef struct mpu6050_data mpu6050_data_t;
+typedef struct sensor_readData sensor_readData_t;
 
 
 

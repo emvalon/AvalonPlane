@@ -87,7 +87,7 @@ void communicate_enter(void *para)
     while(1){
         res = rt_mq_recv(communicateQ,&data,sizeof(data),RT_WAITING_FOREVER);
         if(res == RT_EOK){
-            Data_Send_Status(data.Q_angle);
+            //Data_Send_Status(data.Q_angle);
             LOG_D("roll:%d\tyaw:%d\tpitch:%d",(int)(data.Q_angle.roll),(int)(data.Q_angle.yaw),(int)(data.Q_angle.pitch));
         } 
         else{
