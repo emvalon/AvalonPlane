@@ -14,6 +14,8 @@
 #include "communicate.h"
 #include "ulog.h"
 #include "IMU.h"
+#include "filter.h"
+#include "IMUSO3.h"
 
 #define SENSOR_TIMER        "timer2"
 
@@ -120,7 +122,6 @@ static void mpu6050Init(void)
 
 void read_sensor_enter(void *para)
 {
-    rt_device_t  acc_mpu6050,gyro_mpu6050;
     uint32_t flag;
     sensor_readData_t  readData;
     struct rt_sensor_data dataTemp;
@@ -130,6 +131,7 @@ void read_sensor_enter(void *para)
     sensorTimerInit();
     //初始化MPU
     mpu6050Init();
+    
 
     while(1){
         res = rt_event_recv( sensorEvent,           MPU_READY_FLAG, 
@@ -176,23 +178,51 @@ void read_sensor_enter(void *para)
 /***********************************
  process sensor data thread enter
 ************************************/
+#define so3_comp_params_Kp 1.0f
+#define so3_comp_params_Ki  0.05f
 void process_sensor_enter(void *para)
 {
-    rt_err_t    res; 
-    sensor_readData_t  data;
-    Communicate_Data_t  commData;
-    uint32_t sec=0;
-    uint32_t cnt=0;
+    rt_err_t                res; 
+    sensor_3_float_axis_t   t_dataAccel,t_dataGyro;
+    sensor_readData_t       t_recvData;
+    rt_hwtimerval_t         t_preTime;
+    Communicate_Data_t      t_commData;
+    uint32_t    u32_sec=0;
+    uint32_t    u32_cnt=0;
+    int         s32_dt;
  
+    //初始化low frequency filter
+    IMU_Init();
+
+    rt_memset(&t_preTime,0,sizeof(t_preTime));
     while(1){ 
-        res = rt_mq_recv(sensorMQ,&data,sizeof(data),RT_WAITING_FOREVER);
+        res = rt_mq_recv(sensorMQ,&t_recvData,sizeof(t_recvData),RT_WAITING_FOREVER);
         if(res == RT_EOK){            
-            switch ( data.type )
+            switch ( t_recvData.type )
             {
             case DATA_TYPE_MPU6050:
                 cnt++;
-                IMU_Updata(data.dataGyro.x*0.017453/1000.0,data.dataGyro.y*0.017453/1000.0,data.dataGyro.z*0.017453/1000.0,
-                            data.dataAccel.x,data.dataAccel.y,data.dataAccel.z,&commData.Q_angle);
+                s32_dt = t_recvData.time.usec - t_preTime.usec;
+                if(s32_dt < 0){
+                    s32_dt += 60;
+                }
+
+                t_dataAccel.x = LPF2pApply_1(t_recvData.dataAccel.x);
+                t_dataAccel.y = LPF2pApply_2(t_recvData.dataAccel.y);
+                t_dataAccel.z = LPF2pApply_3(t_recvData.dataAccel.z);
+
+                t_dataGyro.x = LPF2pApply_4(t_recvData.dataGyro.x*0.017453/1000.0);
+                t_dataGyro.y = LPF2pApply_5(t_recvData.dataGyro.y*0.017453/1000.0);
+                t_dataGyro.z = LPF2pApply_6(t_recvData.dataGyro.z*0.017453/1000.0);
+
+                NonlinearSO3AHRSupdate( t_dataGyro.x,   t_dataGyro.y,   t_dataGyro.z,
+                                        t_dataAccel.x,  t_dataAccel.y,  t_dataAccel.z,
+                                        0, 0, 0,
+                                        so3_comp_params_Kp, so3_comp_params_Ki, s32_dt);
+
+
+               //IMU_Updata(data.dataGyro.x*0.017453/1000.0,data.dataGyro.y*0.017453/1000.0,data.dataGyro.z*0.017453/1000.0,
+               //             data.dataAccel.x,data.dataAccel.y,data.dataAccel.z,&commData.Q_angle);
                 if(data.time.sec > sec){ 
 //                  LOG_D("x:%d y%d z%d",data.dataAccel.x,data.dataAccel.y,data.dataAccel.z);
                     if(RT_EOK != rt_mq_send(communicateQ,&commData,sizeof(commData)) ){

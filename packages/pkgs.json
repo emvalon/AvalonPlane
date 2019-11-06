@@ -1,0 +1,12 @@
+[
+ {
+  "path": "/packages/peripherals/sensors/bmi160_bmx160", 
+  "ver": "latest", 
+  "name": "BMI160_BMX160"
+ }, 
+ {
+  "path": "/packages/peripherals/sensors/mpu6xxx", 
+  "ver": "latest", 
+  "name": "MPU6XXX"
+ }
+]
