@@ -16,5 +16,7 @@ float LPF2pApply_5(float sample);
 void LPF2pSetCutoffFreq_6(float sample_freq, float cutoff_freq);
 float LPF2pApply_6(float sample);
 
+
+void filterInit(void);
 #endif
 

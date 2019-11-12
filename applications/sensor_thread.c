@@ -13,9 +13,9 @@
 #include "sensor_thread.h"
 #include "communicate.h"
 #include "ulog.h"
-#include "IMU.h"
 #include "filter.h"
-#include "IMUSO3.h"
+#include "inertialMeasure.h"
+
 
 #define SENSOR_TIMER        "timer2"
 
@@ -58,7 +58,7 @@ INIT_APP_EXPORT(create_sensor_queue);
 static rt_err_t mpu6050_rx_callBack(rt_device_t dev, rt_size_t size)
 {
     if(rt_event_send(sensorEvent,MPU_READY_FLAG) != RT_EOK){
-        LOG_E("sensor data ready set fault\r\n");
+        LOG_W("sensor data ready set fault\r\n");
     }
     return 0;
 }
@@ -71,42 +71,43 @@ static void sensorTimerInit(void)
 
     sensor_timer = rt_device_find(SENSOR_TIMER);
     if(sensor_timer == RT_NULL){
-        LOG_W("sensor_timer not find\r\n");
+        LOG_E("sensor_timer not find\r\n");
         return;
     }
     //设置计时定时器
     if(rt_device_open(sensor_timer,RT_DEVICE_OFLAG_RDWR) != RT_EOK){
-        LOG_W("sensor_timer open failure\r\n");
+        LOG_E("sensor_timer open failure\r\n");
         return;
     }
     freq = 1000000;
     if(RT_EOK != rt_device_control(sensor_timer,HWTIMER_CTRL_FREQ_SET,&freq)){
-        LOG_W("sensor_timer set frequency failure\r\n");
+        LOG_E("sensor_timer set frequency failure\r\n");
         return;
     }
     mode = HWTIMER_MODE_PERIOD;
     if(RT_EOK != rt_device_control(sensor_timer,HWTIMER_CTRL_MODE_SET,&mode)){
-        LOG_W("sensor_timer set mode failure\r\n");
+        LOG_E("sensor_timer set mode failure\r\n");
         return;
     }
     time.sec = 0;
     time.usec= 6500;
     if(sizeof(time) != rt_device_write(sensor_timer,0,&time,sizeof(time))){
-        LOG_W("sensor_timer write failure\r\n");
+        LOG_E("sensor_timer write failure\r\n");
         return;
     }
 }
 
 static void mpu6050Init(void)
 {
+    rt_err_t res;
     acc_mpu6050 = rt_device_find("acce_mpu");
     if(acc_mpu6050 == RT_NULL){
-        LOG_W("acc_mpu6050 not find\r\n");
+        LOG_E("acc_mpu6050 not find\r\n");
         return;
     }
     gyro_mpu6050 = rt_device_find("gyro_mpu");
     if(gyro_mpu6050 == RT_NULL){
-        LOG_W("gyro_mpu6050 not find\r\n");
+        LOG_E("gyro_mpu6050 not find\r\n");
         return;
     }
     //设置mpu接收回调函数
@@ -115,9 +116,14 @@ static void mpu6050Init(void)
     rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_DLPF , (void*)4);
     rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_ODR , (void*)200);
     
-  
-    rt_device_open(acc_mpu6050, RT_DEVICE_FLAG_INT_RX );
-    //rt_device_open(gyro_mpu6050, RT_DEVICE_FLAG_INT_RX );
+    res = rt_device_open(acc_mpu6050, RT_DEVICE_FLAG_INT_RX );
+    if(RT_EOK != res  ){
+        LOG_E("acce open error :%d",res);
+    }
+    res = rt_device_open(gyro_mpu6050, RT_DEVICE_FLAG_INT_RX );
+    if(RT_EOK != res  ){
+        LOG_E("gyro open error :%d",res);
+    }
 }
 
 void read_sensor_enter(void *para)
@@ -183,61 +189,62 @@ void read_sensor_enter(void *para)
 void process_sensor_enter(void *para)
 {
     rt_err_t                res; 
-    sensor_3_float_axis_t   t_dataAccel,t_dataGyro;
-    sensor_readData_t       t_recvData;
-    rt_hwtimerval_t         t_preTime;
-    Communicate_Data_t      t_commData;
-    uint32_t    u32_sec=0;
-    uint32_t    u32_cnt=0;
-    int         s32_dt;
+    triaxialFloat_t         acce,gyro,magnet;
+    attitudeAngle_t         attitude;
+    sensor_readData_t       recvData;
+    rt_hwtimerval_t         preTime;
+    Communicate_Data_t      commData;
+    uint32_t    cnt=0;
+    float       dt;
  
     //初始化low frequency filter
-    IMU_Init();
+    filterInit();
 
-    rt_memset(&t_preTime,0,sizeof(t_preTime));
+    rt_memset(&preTime,0,sizeof(preTime));
+    rt_memset(&magnet,0,sizeof(magnet));
+
     while(1){ 
-        res = rt_mq_recv(sensorMQ,&t_recvData,sizeof(t_recvData),RT_WAITING_FOREVER);
+        res = rt_mq_recv(sensorMQ,&recvData,sizeof(recvData),RT_WAITING_FOREVER);
         if(res == RT_EOK){            
-            switch ( t_recvData.type )
+            switch ( recvData.type )
             {
             case DATA_TYPE_MPU6050:
                 cnt++;
-                s32_dt = t_recvData.time.usec - t_preTime.usec;
-                if(s32_dt < 0){
-                    s32_dt += 60;
+                dt = (recvData.time.usec - preTime.usec);
+                if(dt < 0){
+                    dt += 1000000;
                 }
+                //转为秒为单位
+                dt /= 1000000.0;
+                //低通滤波进行滤波
+//                acce.x = LPF2pApply_1(recvData.dataAccel.x);
+//                acce.y = LPF2pApply_2(recvData.dataAccel.y);
+//                acce.z = LPF2pApply_3(recvData.dataAccel.z);
+//
+//                gyro.x = LPF2pApply_4(recvData.dataGyro.x*0.017453/1000.0);
+//                gyro.y = LPF2pApply_5(recvData.dataGyro.y*0.017453/1000.0);
+//                gyro.z = LPF2pApply_6(recvData.dataGyro.z*0.017453/1000.0);
 
-                t_dataAccel.x = LPF2pApply_1(t_recvData.dataAccel.x);
-                t_dataAccel.y = LPF2pApply_2(t_recvData.dataAccel.y);
-                t_dataAccel.z = LPF2pApply_3(t_recvData.dataAccel.z);
+                
+                
+                acce.x = (recvData.dataAccel.x);
+                acce.y = (recvData.dataAccel.y);
+                acce.z = (recvData.dataAccel.z);
 
-                t_dataGyro.x = LPF2pApply_4(t_recvData.dataGyro.x*0.017453/1000.0);
-                t_dataGyro.y = LPF2pApply_5(t_recvData.dataGyro.y*0.017453/1000.0);
-                t_dataGyro.z = LPF2pApply_6(t_recvData.dataGyro.z*0.017453/1000.0);
+                gyro.x = (recvData.dataGyro.x*0.017453/1000.0);
+                gyro.y = (recvData.dataGyro.y*0.017453/1000.0);
+                gyro.z = (recvData.dataGyro.z*0.017453/1000.0);
+                calculateAttitudeAngle(&acce,&gyro,&magnet,dt,&attitude);
 
-                NonlinearSO3AHRSupdate( t_dataGyro.x,   t_dataGyro.y,   t_dataGyro.z,
-                                        t_dataAccel.x,  t_dataAccel.y,  t_dataAccel.z,
-                                        0, 0, 0,
-                                        so3_comp_params_Kp, so3_comp_params_Ki, s32_dt);
-
-
-               //IMU_Updata(data.dataGyro.x*0.017453/1000.0,data.dataGyro.y*0.017453/1000.0,data.dataGyro.z*0.017453/1000.0,
-               //             data.dataAccel.x,data.dataAccel.y,data.dataAccel.z,&commData.Q_angle);
-                if(data.time.sec > sec){ 
-//                  LOG_D("x:%d y%d z%d",data.dataAccel.x,data.dataAccel.y,data.dataAccel.z);
+                if(recvData.time.sec > preTime.sec){ 
+                    commData.msgType  = COMM_TYPR_ATTITUDE;
+                    commData.attitude = attitude;
                     if(RT_EOK != rt_mq_send(communicateQ,&commData,sizeof(commData)) ){
                         LOG_W("send to commu fault");
                     }
                     LOG_D("RECV data cnt=%d",cnt);
-                    sec = data.time.sec;
                     cnt = 0;
                 }
-//                tick = rt_tick_get();
-//                if( tick - preTick >=1000 ){
-//                    LOG_D("read cnt:%d\r\n",cnt);
-//                    preTick = tick;
-//                    cnt=0;
-//                }
                 break;
             
             default:
@@ -245,6 +252,7 @@ void process_sensor_enter(void *para)
             
             
             }
+            preTime = recvData.time;
         }
         else{
             LOG_E("process recv MQ error:%d",res);

@@ -1,8 +1,8 @@
 [
  {
-  "path": "/packages/peripherals/sensors/bmi160_bmx160", 
+  "path": "/packages/iot/cJSON", 
   "ver": "latest", 
-  "name": "BMI160_BMX160"
+  "name": "CJSON"
  }, 
  {
   "path": "/packages/peripherals/sensors/mpu6xxx", 

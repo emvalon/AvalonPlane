@@ -354,22 +354,21 @@
           <state>$PROJ_DIR$\libraries\HAL_Drivers\config</state>
           <state>$PROJ_DIR$\rt-thread\include</state>
           <state>$PROJ_DIR$\libraries\HAL_Drivers</state>
-          <state>$PROJ_DIR$\packages\bmi160_bmx160-latest\libraries</state>
-          <state>$PROJ_DIR$\packages\bmi160_bmx160-latest</state>
+          <state>$PROJ_DIR$\rt-thread\components\drivers\sensors</state>
+          <state>$PROJ_DIR$\rt-thread\libcpu\arm\common</state>
           <state>$PROJ_DIR$\rt-thread\libcpu\arm\cortex-m4</state>
           <state>$PROJ_DIR$\libraries\STM32F4xx_HAL\CMSIS\Include</state>
           <state>$PROJ_DIR$\rt-thread\components\finsh</state>
           <state>$PROJ_DIR$\.</state>
           <state>$PROJ_DIR$\applications</state>
+          <state>$PROJ_DIR$\packages\cJSON-latest</state>
           <state>$PROJ_DIR$\rt-thread\components\drivers\include</state>
           <state>$PROJ_DIR$\board</state>
           <state>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Inc</state>
           <state>$PROJ_DIR$\board\CubeMX_Config\Inc</state>
-          <state>$PROJ_DIR$\rt-thread\components\utilities\ulog</state>
           <state>$PROJ_DIR$\packages\mpu6xxx-latest\inc</state>
-          <state>$PROJ_DIR$\rt-thread\libcpu\arm\common</state>
           <state>$PROJ_DIR$\libraries\STM32F4xx_HAL\CMSIS\Device\ST\STM32F4xx\Include</state>
-          <state>$PROJ_DIR$\rt-thread\components\drivers\sensors</state>
+          <state>$PROJ_DIR$\rt-thread\components\utilities\ulog</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1410,22 +1409,21 @@
           <state>$PROJ_DIR$\libraries\HAL_Drivers\config</state>
           <state>$PROJ_DIR$\rt-thread\include</state>
           <state>$PROJ_DIR$\libraries\HAL_Drivers</state>
-          <state>$PROJ_DIR$\packages\bmi160_bmx160-latest\libraries</state>
-          <state>$PROJ_DIR$\packages\bmi160_bmx160-latest</state>
+          <state>$PROJ_DIR$\rt-thread\components\drivers\sensors</state>
+          <state>$PROJ_DIR$\rt-thread\libcpu\arm\common</state>
           <state>$PROJ_DIR$\rt-thread\libcpu\arm\cortex-m4</state>
           <state>$PROJ_DIR$\libraries\STM32F4xx_HAL\CMSIS\Include</state>
           <state>$PROJ_DIR$\rt-thread\components\finsh</state>
           <state>$PROJ_DIR$\.</state>
           <state>$PROJ_DIR$\applications</state>
+          <state>$PROJ_DIR$\packages\cJSON-latest</state>
           <state>$PROJ_DIR$\rt-thread\components\drivers\include</state>
           <state>$PROJ_DIR$\board</state>
           <state>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Inc</state>
           <state>$PROJ_DIR$\board\CubeMX_Config\Inc</state>
-          <state>$PROJ_DIR$\rt-thread\components\utilities\ulog</state>
           <state>$PROJ_DIR$\packages\mpu6xxx-latest\inc</state>
-          <state>$PROJ_DIR$\rt-thread\libcpu\arm\common</state>
           <state>$PROJ_DIR$\libraries\STM32F4xx_HAL\CMSIS\Device\ST\STM32F4xx\Include</state>
-          <state>$PROJ_DIR$\rt-thread\components\drivers\sensors</state>
+          <state>$PROJ_DIR$\rt-thread\components\utilities\ulog</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2163,10 +2161,13 @@
   <group>
     <name>Applications</name>
     <file>
-      <name>$PROJ_DIR$\applications\IMU.c</name>
+      <name>$PROJ_DIR$\applications\communicate.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\applications\communicate.c</name>
+      <name>$PROJ_DIR$\applications\filter.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\applications\inertialMeasure.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\applications\main.c</name>
@@ -2206,15 +2207,15 @@
     </file>
   </group>
   <group>
-    <name>bmi160</name>
+    <name>cJSON</name>
     <file>
-      <name>$PROJ_DIR$\packages\bmi160_bmx160-latest\sensor_bosch_bmx160.c</name>
+      <name>$PROJ_DIR$\packages\cJSON-latest\cJSON.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\packages\bmi160_bmx160-latest\libraries\bmi160.c</name>
+      <name>$PROJ_DIR$\packages\cJSON-latest\cJSON_port.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\packages\bmi160_bmx160-latest\libraries\bmm150.c</name>
+      <name>$PROJ_DIR$\packages\cJSON-latest\cJSON_util.c</name>
     </file>
   </group>
   <group>

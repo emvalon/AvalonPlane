@@ -2,12 +2,9 @@
 *  TOBE FIXED: Use filter object instead of repeated code
 *
 */
-
-#include "SysConfig.h"
-#include "imu.h"
 #include "filter.h"
 
-
+#define M_PI_F 3.1415926
 
 static float           _cutoff_freq1;
 static float           _a11;
@@ -343,4 +340,19 @@ float LPF2pApply_6(float sample)
         return output;
     }
 }
+#define IMU_SAMPLE_RATE                 200.0f
+#define IMU_FILTER_CUTOFF_FREQ	        30.0f
+
+
+void filterInit()
+{
+    //filter rate
+    LPF2pSetCutoffFreq_1(IMU_SAMPLE_RATE,IMU_FILTER_CUTOFF_FREQ);		//30Hz
+    LPF2pSetCutoffFreq_2(IMU_SAMPLE_RATE,IMU_FILTER_CUTOFF_FREQ);
+    LPF2pSetCutoffFreq_3(IMU_SAMPLE_RATE,IMU_FILTER_CUTOFF_FREQ);
+    LPF2pSetCutoffFreq_4(IMU_SAMPLE_RATE,IMU_FILTER_CUTOFF_FREQ);
+    LPF2pSetCutoffFreq_5(IMU_SAMPLE_RATE,IMU_FILTER_CUTOFF_FREQ);
+    LPF2pSetCutoffFreq_6(IMU_SAMPLE_RATE,IMU_FILTER_CUTOFF_FREQ);
+}
+
 

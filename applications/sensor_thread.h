@@ -17,9 +17,6 @@ struct sensor_readData{
     };   
 };
 
-typedef struct {
-    float x,y,z;
-}sensor_3_float_axis_t;
 
 
 typedef struct sensor_readData sensor_readData_t;

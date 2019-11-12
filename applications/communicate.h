@@ -11,14 +11,18 @@
 
 #include "rtthread.h"
 #include "sensor_thread.h"
-#include "IMU.h"
+#include "inertialMeasure.h"
 
 extern rt_mq_t communicateQ;
 
 typedef struct{
-    Attitude_t  Q_angle;
+    uint8_t msgType;
+    attitudeAngle_t  attitude;
 }Communicate_Data_t;
 
+enum{
+    COMM_TYPR_ATTITUDE = 0,
+};
 
 
 void communicate_enter(void *para);

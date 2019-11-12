@@ -142,6 +142,8 @@
 
 /* IoT - internet of things */
 
+#define PKG_USING_CJSON
+#define PKG_USING_CJSON_LATEST_VERSION
 
 /* Wi-Fi */
 
@@ -172,11 +174,6 @@
 /* peripheral libraries and drivers */
 
 #define PKG_USING_SENSORS_DRIVERS
-#define PKG_USING_BMI160_BMX160
-#define BMI160_USING_ACCE
-#define BMI160_USING_GYRO
-#define BMX160_USING_MAG
-#define PKG_USING_BMI160_BMX160_LATEST_VERSION
 #define PKG_USING_MPU6XXX
 #define PKG_USING_MPU6XXX_LATEST_VERSION
 #define PKG_USING_MPU6XXX_ACCE

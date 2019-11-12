@@ -32,7 +32,7 @@ static int create_communicate_queue(void)
 INIT_APP_EXPORT(create_communicate_queue);
 
 uint8_t data_to_send[100];
-void Data_Send_Status(Attitude_t Att_Angle)
+void Data_Send_Status(attitudeAngle_t *angle)
 {
   
 	uint8_t     i,_cnt=0;
@@ -45,13 +45,13 @@ void Data_Send_Status(Attitude_t Att_Angle)
 	data_to_send[_cnt++]=0x01;
 	data_to_send[_cnt++]=0;
 
-	_temp = (int)(Att_Angle.roll*100);
+	_temp = (int)(angle->rollDegree *100);
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
-	_temp = (int)(Att_Angle.pitch*100);
+	_temp = (int)(angle->pitchDegree *100);
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
-	_temp = (int)(Att_Angle.yaw*100);
+	_temp = (int)(angle->yawDepree *100);
 	//_temp = (int)(Mag_Heading*100);
 	data_to_send[_cnt++]=BYTE1(_temp);
 	data_to_send[_cnt++]=BYTE0(_temp);
@@ -83,12 +83,21 @@ void Data_Send_Status(Attitude_t Att_Angle)
 void communicate_enter(void *para)
 {
     rt_err_t res;
-    Communicate_Data_t data;
+    Communicate_Data_t recvData;
     while(1){
-        res = rt_mq_recv(communicateQ,&data,sizeof(data),RT_WAITING_FOREVER);
+        res = rt_mq_recv(communicateQ,&recvData,sizeof(recvData),RT_WAITING_FOREVER);
         if(res == RT_EOK){
-            //Data_Send_Status(data.Q_angle);
-            LOG_D("roll:%d\tyaw:%d\tpitch:%d",(int)(data.Q_angle.roll),(int)(data.Q_angle.yaw),(int)(data.Q_angle.pitch));
+			switch (recvData.msgType)
+			{
+			case COMM_TYPR_ATTITUDE:
+				//Data_Send_Status(data.Q_angle);
+            	LOG_D("roll:%d\tpitch:%d\tyaw:%d",(int)(recvData.attitude.rollDegree),(int)(recvData.attitude.pitchDegree),(int)(recvData.attitude.yawDepree));
+				break;
+			
+			default:
+				break;
+			}
+            
         } 
         else{
             LOG_E("commu recv MQ error:%d",res);
