@@ -340,7 +340,7 @@ float LPF2pApply_6(float sample)
         return output;
     }
 }
-#define IMU_SAMPLE_RATE                 200.0f
+#define IMU_SAMPLE_RATE                 100.0f
 #define IMU_FILTER_CUTOFF_FREQ	        30.0f
 
 

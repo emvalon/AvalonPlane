@@ -20,7 +20,7 @@
 #define READ_SENSOR_SLICE           2
 // process sensor data thread
 #define PROCESS_SENSOR_STACK_SIZE   800
-#define PROCESS_SENSOR_PRO          6
+#define PROCESS_SENSOR_PRO          5
 #define PROCESS_SENSOR_SLICE        2
 // communicate thread
 #define COMMUNICATE_STACK_SIZE      800
@@ -34,7 +34,7 @@ int main(void)
     rt_thread_t thread;
     
     /* user app entry */
-    ulog_global_filter_lvl_set(LOG_LVL_DBG);
+    ulog_global_filter_lvl_set(LOG_LVL_INFO);
     //sensor read thread
     thread    = rt_thread_create(   
                             "readSen",          read_sensor_enter,  

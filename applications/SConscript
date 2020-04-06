@@ -7,6 +7,10 @@ CPPPATH = [cwd, str(Dir('#'))]
 
 src = Glob('*.c')
 
+if GetDepend('APP_USING_CPUUSAGE'):
+    src = src + ['extra/cpuusage.c']
+
+
 group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
 
 Return('group')

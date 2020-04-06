@@ -114,7 +114,7 @@ static void mpu6050Init(void)
     rt_device_set_rx_indicate(acc_mpu6050,mpu6050_rx_callBack);
     //设置低通滤波
     rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_DLPF , (void*)4);
-    rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_ODR , (void*)200);
+    rt_device_control(acc_mpu6050, RT_SENSOR_CTRL_SET_ODR , (void*)100);
     
     res = rt_device_open(acc_mpu6050, RT_DEVICE_FLAG_INT_RX );
     if(RT_EOK != res  ){
@@ -138,7 +138,8 @@ void read_sensor_enter(void *para)
     //初始化MPU
     mpu6050Init();
     
-
+   
+    rt_thread_mdelay(1000);
     while(1){
         res = rt_event_recv( sensorEvent,           MPU_READY_FLAG, 
                              RT_EVENT_FLAG_OR|RT_EVENT_FLAG_CLEAR,
@@ -151,7 +152,6 @@ void read_sensor_enter(void *para)
             //获取当前时间
             if(rt_device_read(sensor_timer,0,&readData.time,sizeof(readData.time)) != sizeof(readData.time) ){
                 LOG_E("hwtimer read error!");
-                rt_thread_mdelay(10);
                 continue;
             }
             rt_memset(&dataTemp,0,sizeof(dataTemp));
@@ -171,8 +171,7 @@ void read_sensor_enter(void *para)
                 //send data mailQ
                 res = rt_mq_send(sensorMQ,&readData,sizeof(readData));
                 if(res != RT_EOK){
-                    LOG_W("sensor send fault:%d\r\n",res );  
-                    rt_thread_mdelay(10);
+                    LOG_W("sensor send fault:%d\r\n",res ); 
                 }
             }
         }
@@ -210,39 +209,39 @@ void process_sensor_enter(void *para)
             {
             case DATA_TYPE_MPU6050:
                 cnt++;
-                dt = (recvData.time.usec - preTime.usec);
-                if(dt < 0){
-                    dt += 1000000;
+                if(recvData.time.usec > preTime.usec){
+                    dt = (recvData.time.usec - preTime.usec);
+                }
+                else{
+                    dt = 1000000 - preTime.usec + recvData.time.usec;
                 }
                 //转为秒为单位
                 dt /= 1000000.0;
                 //低通滤波进行滤波
-//                acce.x = LPF2pApply_1(recvData.dataAccel.x);
-//                acce.y = LPF2pApply_2(recvData.dataAccel.y);
-//                acce.z = LPF2pApply_3(recvData.dataAccel.z);
-//
-//                gyro.x = LPF2pApply_4(recvData.dataGyro.x*0.017453/1000.0);
-//                gyro.y = LPF2pApply_5(recvData.dataGyro.y*0.017453/1000.0);
-//                gyro.z = LPF2pApply_6(recvData.dataGyro.z*0.017453/1000.0);
+               acce.x = LPF2pApply_1(recvData.dataAccel.x);
+               acce.y = LPF2pApply_2(recvData.dataAccel.y);
+               acce.z = LPF2pApply_3(recvData.dataAccel.z);
+               gyro.x = LPF2pApply_4(recvData.dataGyro.x*0.017453/1000.0);
+               gyro.y = LPF2pApply_5(recvData.dataGyro.y*0.017453/1000.0);
+               gyro.z = LPF2pApply_6(recvData.dataGyro.z*0.017453/1000.0);
+//                
+                // acce.x = (float)(recvData.dataAccel.x);
+                // acce.y = (float)(recvData.dataAccel.y);
+                // acce.z = (float)(recvData.dataAccel.z);
 
-                
-                
-                acce.x = (recvData.dataAccel.x);
-                acce.y = (recvData.dataAccel.y);
-                acce.z = (recvData.dataAccel.z);
+                // gyro.x = (recvData.dataGyro.x*0.017453/1000.0);
+                // gyro.y = (recvData.dataGyro.y*0.017453/1000.0);
+                // gyro.z = (recvData.dataGyro.z*0.017453/1000.0);
 
-                gyro.x = (recvData.dataGyro.x*0.017453/1000.0);
-                gyro.y = (recvData.dataGyro.y*0.017453/1000.0);
-                gyro.z = (recvData.dataGyro.z*0.017453/1000.0);
-                calculateAttitudeAngle(&acce,&gyro,&magnet,dt,&attitude);
-
-                if(recvData.time.sec > preTime.sec){ 
+               calculateAttitudeAngle(&acce,&gyro,&magnet,dt,&attitude);
+               //if(recvData.time.sec > preTime.sec){ 
+                if(cnt >= 20){
                     commData.msgType  = COMM_TYPR_ATTITUDE;
                     commData.attitude = attitude;
                     if(RT_EOK != rt_mq_send(communicateQ,&commData,sizeof(commData)) ){
                         LOG_W("send to commu fault");
                     }
-                    LOG_D("RECV data cnt=%d",cnt);
+                    // LOG_D("RECV data cnt=%d  dt=%d",cnt,(int)(dt*10000));
                     cnt = 0;
                 }
                 break;

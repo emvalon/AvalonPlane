@@ -1,0 +1,7 @@
+menu "Application Config"
+
+	config APP_USING_CPUUSAGE
+			bool "use cpu usage calculation"
+			default y
+
+endmenu

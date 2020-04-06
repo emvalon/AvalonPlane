@@ -28,5 +28,5 @@ typedef struct
 
 //函数声明
 void calculateAttitudeAngle(triaxialFloat_t *acce, triaxialFloat_t *gyro, triaxialFloat_t *magnet, float dt , attitudeAngle_t *attitude);
-
+void IMU_Updata(float gx, float gy, float gz, float ax, float ay, float az,float dt,attitudeAngle_t *attitude);
 #endif

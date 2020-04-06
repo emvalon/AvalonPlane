@@ -352,6 +352,7 @@
           <name>CCIncludePath2</name>
           <state />
           <state>$PROJ_DIR$\libraries\HAL_Drivers\config</state>
+          <state>$PROJ_DIR$\rt-thread\components\drivers\usb\usbdevice</state>
           <state>$PROJ_DIR$\rt-thread\include</state>
           <state>$PROJ_DIR$\libraries\HAL_Drivers</state>
           <state>$PROJ_DIR$\rt-thread\components\drivers\sensors</state>
@@ -1407,6 +1408,7 @@
           <name>CCIncludePath2</name>
           <state />
           <state>$PROJ_DIR$\libraries\HAL_Drivers\config</state>
+          <state>$PROJ_DIR$\rt-thread\components\drivers\usb\usbdevice</state>
           <state>$PROJ_DIR$\rt-thread\include</state>
           <state>$PROJ_DIR$\libraries\HAL_Drivers</state>
           <state>$PROJ_DIR$\rt-thread\components\drivers\sensors</state>
@@ -2175,6 +2177,9 @@
     <file>
       <name>$PROJ_DIR$\applications\sensor_thread.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\applications\extra\cpuusage.c</name>
+    </file>
   </group>
   <group>
     <name>Drivers</name>
@@ -2201,6 +2206,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\libraries\HAL_Drivers\drv_soft_i2c.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\libraries\HAL_Drivers\drv_usbd_fs.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\libraries\HAL_Drivers\drv_common.c</name>
@@ -2297,6 +2305,18 @@
     </file>
   </group>
   <group>
+    <name>rt_usbd</name>
+    <file>
+      <name>$PROJ_DIR$\rt-thread\components\drivers\usb\usbdevice\core\core.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\rt-thread\components\drivers\usb\usbdevice\core\usbdevice.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\rt-thread\components\drivers\usb\usbdevice\class\cdc_vcom.c</name>
+    </file>
+  </group>
+  <group>
     <name>finsh</name>
     <file>
       <name>$PROJ_DIR$\rt-thread\components\finsh\shell.c</name>
@@ -2384,6 +2404,21 @@
     </file>
     <file>
       <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_i2c_ex.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pccard.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pcd_ex.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_hcd.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_usb.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\libraries\STM32F4xx_HAL\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.c</name>

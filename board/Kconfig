@@ -26,6 +26,11 @@ menu "On-chip Peripheral Drivers"
         select RT_USING_PIN
         default y
 
+	config BSP_USING_USBD_FS
+        bool "Enable USB VCP"
+		select RT_USING_USB_DEVICE
+        default y
+		
 	menuconfig BSP_USING_TIM	
 		bool "Enable hardware timer"
 		default y
